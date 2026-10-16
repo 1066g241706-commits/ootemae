@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>全商簿記・ビジネス計算1級 練習問題＆電卓</title>
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ヘッダー */
+        .app-header {
+            padding: 8px 12px;
+            background-color: #1c1c1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2c2c2e;
+            flex-shrink: 0;
+        }
+
+        .app-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #ff9f0a;
+        }
+
+        .score-board {
+            font-size: 0.85rem;
+            color: #8e8e93;
+        }
+
+        /* 全体レイアウト split */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 上半分：問題エリア（スクロール可能） */
+        .quiz-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* カテゴリ切り替えサブタブ */
+        .category-filter {
+            display: flex;
+            gap: 6px;
+            background-color: #1c1c1e;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid #2c2c2e;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 6px 4px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: #8e8e93;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background-color: #ff9f0a;
+            color: #ffffff;
+        }
+
+        .question-card {
+            background-color: #1c1c1e;
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid #2c2c2e;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            color: #ff9f0a;
+            font-weight: bold;
+        }
+
+        .question-category {
+            font-size: 0.75rem;
+            background-color: #3a3a3c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #d1d1d6;
+        }
+
+        .question-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        /* 解答入力エリア */
+        .journal-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background-color: #1c1c1e;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #2c2c2e;
+        }
+
+        .side-box {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .side-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .side-title {
+            font-size: 0.8rem;
+            color: #ff9f0a;
+            font-weight: bold;
+        }
+
+        .add-row-btn {
+            background-color: #2c2c2e;
+            color: #ff9f0a;
+            border: 1px solid #ff9f0a;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            cursor: pointer;
+        }
+
+        .entry-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        select, input[type="number"] {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #3a3a3c;
+            background-color: #2c2c2e;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: bold;
+            outline: none;
+        }
+
+        select { 
+            flex: 1; 
+            min-width: 90px;
+        }
+
+        input[type="number"] { 
+            flex: 1.5; 
+            font-size: 1rem;
+            text-align: right;
+        }
+
+        .single-input-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .single-input-box input {
+            flex: 1;
+        }
+
+        .unit-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .remove-btn {
+            background: #ff453a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 26px;
+            height: 32px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background-color: #ff9f0a;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .action-btn:active { opacity: 0.8; }
+
+        .result-message {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            min-height: 18px;
+        }
+
+        .correct { color: #30d158; }
+        .incorrect { color: #ff453a; }
+
+        /* 下半分：電卓固定エリア */
+        .calculator-container {
+            width: 100%;
+            background-color: #121212;
+            border-top: 1px solid #2c2c2e;
+            padding: 6px 10px 10px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .display-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding: 0 4px;
+        }
+
+        .display-top-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+        }
+
+        .memory-indicator {
+            font-size: 0.75rem;
+            color: #ff9f0a;
+            height: 14px;
+            font-weight: bold;
+        }
+
+        .formula-display {
+            font-size: 0.8rem;
+            color: #8e8e93;
+            text-align: right;
+            min-height: 16px;
+            word-break: break-all;
+        }
+
+        .display {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 1.6rem;
+            font-weight: 300;
+            text-align: right;
+            outline: none;
+            padding: 0;
+            height: 32px;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+        }
+
+        .calc-btn {
+            border: none;
+            outline: none;
+            height: 38px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .calc-btn:active { opacity: 0.7; }
+        .btn-num { background-color: #2c2c2e; color: #ffffff; }
+        .btn-func { background-color: #505054; color: #ffffff; }
+        .btn-op { background-color: #ff9f0a; color: #ffffff; font-size: 1.1rem; }
+        .btn-mem { background-color: #3a3a3c; color: #d1d1d6; font-size: 0.8rem; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <div class="app-title">全商簿記＆ビジネス計算1級</div>
+    <div class="score-board" id="scoreBoard">正解: 0 / 0</div>
+</div>
+
+<div class="main-container">
+    <!-- 上部：問題スクロールエリア -->
+    <div class="quiz-scroll-area">
+        <div class="category-filter">
+            <button class="filter-btn active" id="filterAll" onclick="setCategoryFilter('all')">すべて</button>
+            <button class="filter-btn" id="filterBoki" onclick="setCategoryFilter('journal')">簿記（仕訳）</button>
+            <button class="filter-btn" id="filterCalc" onclick="setCategoryFilter('calc')">ビジネス計算</button>
+        </div>
+
+        <div class="question-card">
+            <div class="question-header">
+                <div class="question-number" id="qNumber">第 1 問</div>
+                <div class="question-category" id="qCategory">カテゴリ</div>
+            </div>
+            <div class="question-text" id="qText">読み込み中...</div>
+        </div>
+
+        <!-- 仕訳問題用フォーム -->
+        <div id="journalForm" class="journal-container">
+            <div class="side-box">
+                <div class="side-header">
+                    <span class="side-title">【借方（左）】</span>
+                    <button class="add-row-btn" onclick="addRow('debit')">+ 行追加</button>
+                </div>
+                <div id="debitRows"></div>
+            </div>
+
+            <div class="side-box" style="margin-top: 4px;">
+                <div class="side-header">
+                    <span class="side-title">【貸方（右）】</span>
+                    <button class="add-row-btn" onclick="addRow('credit')">+ 行追加</button>
+                </div>
+                <div id="creditRows"></div>
+            </div>
+        </div>
+
+        <!-- ビジネス計算問題（数値回答）用フォーム -->
+        <div id="calcForm" class="journal-container hidden">
+            <div class="side-title">【解答金額の入力】</div>
+            <div class="single-input-box">
+                <input type="number" id="calcAnswerInput" placeholder="計算結果を入力">
+                <span class="unit-label">円</span>
+            </div>
+        </div>
+
+        <button class="action-btn" onclick="checkAnswer()">解答する</button>
+        <div id="resultMessage" class="result-message"></div>
+        <button class="action-btn hidden" id="nextBtn" style="background-color: #30d158;" onclick="nextQuestion()">次の問題へ</button>
+    </div>
+
+    <!-- 下部：固定電卓エリア -->
+    <div class="calculator-container">
+        <div class="display-container">
+            <div class="display-top-row">
+                <span id="memoryIndicator" class="memory-indicator"></span>
+                <span id="formulaDisplay" class="formula-display"></span>
+            </div>
+            <input type="text" id="display" class="display" readonly value="0">
+        </div>
+
+        <div class="buttons-grid">
+            <button class="calc-btn btn-mem" onclick="memoryClear()">mc</button>
+            <button class="calc-btn btn-mem" onclick="memoryRecall()">mr</button>
+            <button class="calc-btn btn-mem" onclick="memorySubtract()">m-</button>
+            <button class="calc-btn btn-mem" onclick="memoryAdd()">m+</button>
+            <button class="calc-btn btn-op" onclick="setOperator('÷')">÷</button>
+
+            <button class="calc-btn btn-num" onclick="appendNumber('7')">7</button>
+            <button class="calc-btn btn-num" onclick="appendNumber('8')">8</button>
+            <button class="calc-btn btn-num" onclick="appendNumber('9')">9</button>
+            <button class="calc-btn btn-func" onclick="deleteLast()">⌫</button>
+            <button class="calc-btn btn-op" onclick="setOperator('×')">×</button>
+
+            <button class="calc-btn btn-num" onclick="appendNumber('4')">4</button>
+            <button class="calc-btn btn-num" onclick="appendNumber('5')">5</button>
+
+            <button class="calc-btn btn-num" onclick="appendNumber('6')">6</button>
+            <button class="calc-btn btn-func" onclick="allClear()">AC</button>
+            <button class="calc-btn btn-op" onclick="setOperator('-')">-</button>
+
+            <button class="calc-btn btn-num" onclick="appendNumber('1')">1</button>
+            <button class="calc-btn btn-num" onclick="appendNumber('2')">2</button>
+            <button class="calc-btn btn-num" onclick="appendNumber('3')">3</button>
+            <button class="calc-btn btn-func" onclick="percentage()">%</button>
+            <button class="calc-btn btn-op" onclick="setOperator('+')">+</button>
+
+            <button class="calc-btn btn-num" onclick="toggleSign()">+/-</button>
+            <button class="calc-btn btn-num" onclick="appendNumber('0')">0</button>
+            <button class="calc-btn btn-num" onclick="appendDecimal()">.</button>
+            <button class="calc-btn btn-op" style="grid-column: span 2;" onclick="calculate()">=</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 拡張された全15問の問題バンク
+    const questionBank = [
+        // 簿記問題
+        {
+            type: "journal",
+            category: "全商簿記（複合仕訳）",
+            text: "商品 ¥300,000 を売り上げ、代金のうち ¥100,000 は現金で受け取り、残額は掛けとした。",
+            debit: [{ account: "現金", amount: 100000 }, { account: "売掛金", amount: 200000 }],
+            credit: [{ account: "売上", amount: 300000 }]
+        },
+        {
+            type: "journal",
+            category: "全商簿記（給料支給）",
+            text: "従業員の給料総額 ¥250,000 から所得税の源泉徴収分 ¥15,000 を差し引き、差し引き支給額を当座預金から支払った。",
+            debit: [{ account: "給料", amount: 250000 }],
+            credit: [{ account: "所得税預り金", amount: 15000 }, { account: "当座預金", amount: 235000 }]
+        },
+        {
+            type: "journal",
+            category: "全商簿記（手形・買掛）",
+            text: "商品 ¥400,000 を仕入れ、代金のうち ¥150,000 は約束手形を振り出して支払い、残額は掛けとした。",
+            debit: [{ account: "仕入", amount: 400000 }],
+            credit: [{ account: "支払手形", amount: 150000 }, { account: "買掛金", amount: 250000 }]
+        },
+        {
+            type: "journal",
+            category: "全商簿記（貸倒設定）",
+            text: "決算にあたり、売掛金期末残高 ¥500,000 に対して 2% の貸倒れを見積もり、差額補充法により貸倒引当金を設定した。（設定前の貸倒引当金残高: ¥4,000）",
+            debit: [{ account: "貸倒引当金繰入", amount: 6000 }],
+            credit: [{ account: "貸倒引当金", amount: 6000 }]
+        },
+        {
+            type: "journal",
+            category: "全商簿記（固定資産売却）",
+            text: "取得原価 ¥1,200,000（減価償却累計額 ¥900,000）の車両運搬具を ¥250,000 で売却し、代金は月末に受け取ることにした。",
+            debit: [{ account: "未収入金", amount: 250000 }, { account: "減価償却累計額", amount: 900000 }, { account: "固定資産売却損", amount: 50000 }],
+            credit: [{ account: "車両運搬具", amount: 1200000 }]
+        },
+        {
+            type: "journal",
+            category: "全商簿記（有価証券購入）",
+            text: "売買目的で株式 100株 を 1株につき ¥50,000 で購入し、買入手数料 ¥20,000 とともに小切手を振り出して支払った。",
+            debit: [{ account: "売買目的有価証券", amount: 5020000 }],
+            credit: [{ account: "当座預金", amount: 5020000 }]
+        },
+        {
+            type: "journal",
+            category: "全商簿記（手形割引）",
+            text: "受取手形 ¥600,000 を取引銀行で割り引き、割引料 ¥8,000 を差し引かれた手形売却代金を当座預金口座に割り入れを受けた。",
+            debit: [{ account: "当座預金", amount: 592000 }, { account: "手形売却損", amount: 8000 }],
+            credit: [{ account: "受取手形", amount: 600000 }]
+        },
+        {
+            type: "journal",
+            category: "全商簿記（前受金処理）",
+            text: "商品 ¥350,000 を売り上げ、内金として受け取っていた前受金 ¥50,000 を充当し、残額は現金で受け取った。",
+            debit: [{ account: "前受金", amount: 50000 }, { account: "現金", amount: 300000 }],
+            credit: [{ account: "売上", amount: 350000 }]
+        },
+
+        // ビジネス計算問題
+        {
+            type: "calc",
+            category: "ビジネス計算1級（複利終価）",
+            text: "元金 ¥1,500,000 を年利率 3%（1年ごとの複利）で 5 年間運用した場合の元利合計額を計算しなさい。（円未満切捨て）",
+            answer: 1738910
+        },
+        {
+            type: "calc",
+            category: "ビジネス計算1級（定額法減価償却）",
+            text: "取得原価 ¥2,400,000、耐用年数 8 年、残存価額 10% の備品について、定額法による 1 年分の減価償却費を計算しなさい。",
+            answer: 270000
+        },
+        {
+            type: "calc",
+            category: "ビジネス計算1級（売買益・値引）",
+            text: "原価 ¥800,000 の商品に原価の 25% の利益を見込んで定価をつけたが、定価の 10% 引きで販売した。売買益（利益額）を計算しなさい。",
+            answer: 100000
+        },
+        {
+            type: "calc",
+            category: "ビジネス計算1級（複利現価）",
+            text: "3 年後に ¥2,000,000 を得るために、年利率 2%（1年ごとの複利）で現在元金としていくら預け入れればよいか計算しなさい。（円未満切り上げ）",
+            answer: 1884640
+        },
+        {
+            type: "calc",
+            category: "ビジネス計算1級（単利利息）",
+            text: "元金 ¥3,600,000 を年利率 2.5% の単利で 219 日間貸し付けた場合の利息額を計算しなさい。（片両端入れ・年 365 日計算、円未満切捨て）",
+            answer: 54000
+        },
+        {
+            type: "calc",
+            category: "ビジネス計算1級（商品原価算出）",
+            text: "定価 ¥150,000 の商品を定価の 20% 引きで販売したところ、売価の 10% にあたる売買益を得た。この商品の原価を計算しなさい。",
+            answer: 108000
+        },
+        {
+            type: "calc",
+            category: "ビジネス計算1級（年金終価）",
+            text: "毎年掛金 ¥200,000 を年利率 2%（1年ごとの複利）で 4 年間積み立てた場合の積立元利合計額（年金終価）を計算しなさい。",
+            answer: 824322
+        }
+    ];
+
+    const accountTitles = [
+        "現金", "当座預金", "売掛金", "受取手形", "備品", "未払金",
+        "買掛金", "支払手形", "所得税預り金", "売上", "仕入", "給料",
+        "貸倒引当金繰入", "貸倒引当金", "未収入金", "減価償却累計額",
+        "固定資産売却損", "車両運搬具", "売買目的有価証券", "手形売却損", "前受金"
+    ];
+
+    let currentFilter = 'all';
+    let filteredQuestions = [];
+    let currentQIndex = 0;
+    let correctCount = 0;
+
+    window.onload = () => {
+        applyFilter();
+    };
+
+    // 配列のシャッフル関数（フィッシャー–イェーツ）
+    function shuffleArray(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function setCategoryFilter(filterType) {
+        currentFilter = filterType;
+        
+        document.getElementById('filterAll').classList.toggle('active', filterType === 'all');
+        document.getElementById('filterBoki').classList.toggle('active', filterType === 'journal');
+        document.getElementById('filterCalc').classList.toggle('active', filterType === 'calc');
+
+        applyFilter();
+    }
+
+    function applyFilter() {
+        let baseList = [];
+        if (currentFilter === 'all') {
+            baseList = [...questionBank];
+        } else {
+            baseList = questionBank.filter(q => q.type === currentFilter);
+        }
+
+        // ランダムにシャッフル
+        filteredQuestions = shuffleArray(baseList);
+
+        currentQIndex = 0;
+        correctCount = 0;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (filteredQuestions.length === 0) return;
+
+        const q = filteredQuestions[currentQIndex];
+        document.getElementById('qNumber').innerText = `第 ${currentQIndex + 1} 問 / 全 ${filteredQuestions.length} 問`;
+        document.getElementById('qCategory').innerText = q.category;
+        document.getElementById('qText').innerText = q.text;
+
+        const journalForm = document.getElementById('journalForm');
+        const calcForm = document.getElementById('calcForm');
+
+        if (q.type === 'journal') {
+            journalForm.classList.remove('hidden');
+            calcForm.classList.add('hidden');
+            
+            document.getElementById('debitRows').innerHTML = '';
+            document.getElementById('creditRows').innerHTML = '';
+            addRow('debit');
+            addRow('credit');
+        } else {
+            journalForm.classList.add('hidden');
+            calcForm.classList.remove('hidden');
+            document.getElementById('calcAnswerInput').value = '';
+        }
+
+        document.getElementById('resultMessage').innerText = "";
+        document.getElementById('resultMessage').className = "result-message";
+        document.getElementById('nextBtn').classList.add('hidden');
+        updateScoreDisplay();
+    }
+
+    function addRow(side) {
+        const container = document.getElementById(side + 'Rows');
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'entry-row';
+
+        const select = document.createElement('select');
+        select.innerHTML = '<option value="">科目</option>' + 
+            accountTitles.map(t => `<option value="${t}">${t}</option>`).join('');
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.placeholder = '金額 (円)';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.innerText = '×';
+        removeBtn.onclick = () => {
+            if (container.children.length > 1) {
+                rowDiv.remove();
+            }
+        };
+
+        rowDiv.appendChild(select);
+        rowDiv.appendChild(input);
+        rowDiv.appendChild(removeBtn);
+        container.appendChild(rowDiv);
+    }
+
+    function getEntriesFromRows(side) {
+        const container = document.getElementById(side + 'Rows');
+        const rows = container.querySelectorAll('.entry-row');
+        const entries = [];
+
+        rows.forEach(row => {
+            const account = row.querySelector('select').value;
+            const amount = parseInt(row.querySelector('input').value) || 0;
+            if (account && amount > 0) {
+                entries.push({ account, amount });
+            }
+        });
+        return entries;
+    }
+
+    function checkAnswer() {
+        const q = filteredQuestions[currentQIndex];
+        const resDiv = document.getElementById('resultMessage');
+        let isCorrect = false;
+
+        if (q.type === 'journal') {
+            const userDebit = getEntriesFromRows('debit');
+            const userCredit = getEntriesFromRows('credit');
+            const isDebitCorrect = compareEntries(userDebit, q.debit);
+            const isCreditCorrect = compareEntries(userCredit, q.credit);
+            isCorrect = isDebitCorrect && isCreditCorrect;
+        } else {
+            const userAns = parseInt(document.getElementById('calcAnswerInput').value) || 0;
+            isCorrect = (userAns === q.answer);
+        }
+
+        if (isCorrect) {
+            resDiv.innerText = "正解です！";
+            resDiv.className = "result-message correct";
+            correctCount++;
+            updateScoreDisplay();
+            document.getElementById('nextBtn').classList.remove('hidden');
+        } else {
+            resDiv.innerText = q.type === 'calc' ? `不正解です。（正解: ${q.answer.toLocaleString()} 円）` : "不正解です。科目と金額を再確認しましょう。";
+            resDiv.className = "result-message incorrect";
+        }
+    }
+
+    function compareEntries(userEntries, correctEntries) {
+        if (userEntries.length !== correctEntries.length) return false;
+        const sortFn = (a, b) => a.account.localeCompare(b.account) || a.amount - b.amount;
+        const sortedUser = [...userEntries].sort(sortFn);
+        const sortedCorrect = [...correctEntries].sort(sortFn);
+
+        return sortedUser.every((e, i) => 
+            e.account === sortedCorrect[i].account && e.amount === sortedCorrect[i].amount
+        );
+    }
+
+    function nextQuestion() {
+        currentQIndex = (currentQIndex + 1) % filteredQuestions.length;
+        loadQuestion();
+    }
+
+    function updateScoreDisplay() {
+        document.getElementById('scoreBoard').innerText = `正解: ${correctCount} / ${filteredQuestions.length}`;
+    }
+
+    /* 電卓ロジック */
+    let displayValue = '0';
+    let firstOperand = null;
+    let waitingForSecondOperand = false;
+    let currentOperator = null;
+    let memoryValue = 0;
+    let formulaText = '';
+
+    const display = document.getElementById('display');
+    const formulaDisplay = document.getElementById('formulaDisplay');
+    const memoryIndicator = document.getElementById('memoryIndicator');
+
+    function updateCalcDisplay() {
+        display.value = displayValue;
+        formulaDisplay.innerText = formulaText;
+    }
+
+    function updateMemoryIndicator() {
+        memoryIndicator.innerText = memoryValue !== 0 ? 'M' : '';
+    }
+
+    function appendNumber(number) {
+        if (waitingForSecondOperand) {
+            displayValue = number;
+            waitingForSecondOperand = false;
+        } else {
+            displayValue = displayValue === '0' ? number : displayValue + number;
+        }
+        
+        if (currentOperator) {
+            formulaText = `${firstOperand} ${currentOperator} ${displayValue}`;
+        } else {
+            formulaText = displayValue;
+        }
+        updateCalcDisplay();
+    }
+
+    function appendDecimal() {
+        if (waitingForSecondOperand) {
+            displayValue = '0.';
+            waitingForSecondOperand = false;
+        } else if (!displayValue.includes('.')) {
+            displayValue += '.';
+        }
+
+        if (currentOperator) {
+            formulaText = `${firstOperand} ${currentOperator} ${displayValue}`;
+        } else {
+            formulaText = displayValue;
+        }
+        updateCalcDisplay();
+    }
+
+    function setOperator(nextOperator) {
+        const inputValue = parseFloat(displayValue);
+
+        if (firstOperand === null && !isNaN(inputValue)) {
+            firstOperand = inputValue;
+        } else if (currentOperator && !waitingForSecondOperand) {
+            const result = performCalculation(firstOperand, inputValue, currentOperator);
+            displayValue = String(result);
+            firstOperand = result;
+        }
+
+        waitingForSecondOperand = true;
+        currentOperator = nextOperator;
+        formulaText = `${firstOperand} ${currentOperator}`;
+        updateCalcDisplay();
+    }
+
+    function performCalculation(first, second, operator) {
+        if (operator === '+') return first + second;
+        if (operator === '-') return first - second;
+        if (operator === '×') return first * second;
+        if (operator === '÷') return second === 0 ? 'Error' : first / second;
+        return second;
+    }
+
+    function calculate() {
+        if (currentOperator === null || waitingForSecondOperand) return;
+
+        const inputValue = parseFloat(displayValue);
+        const result = performCalculation(firstOperand, inputValue, currentOperator);
+
+        formulaText = `${firstOperand} ${currentOperator} ${inputValue} =`;
+        displayValue = String(result);
+        firstOperand = null;
+        currentOperator = null;
+        waitingForSecondOperand = true;
+        updateCalcDisplay();
+    }
+
+    function allClear() {
+        displayValue = '0';
+        firstOperand = null;
+        waitingForSecondOperand = false;
+        currentOperator = null;
+        formulaText = '';
+        updateCalcDisplay();
+    }
+
+    function deleteLast() {
+        if (waitingForSecondOperand) return;
+        if (displayValue.length === 1 || displayValue === 'Error') {
+            displayValue = '0';
+        } else {
+            displayValue = displayValue.slice(0, -1);
+        }
+
+        if (currentOperator) {
+            formulaText = `${firstOperand} ${currentOperator} ${displayValue}`;
+        } else {
+            formulaText = displayValue;
+        }
+        updateCalcDisplay();
+    }
+
+    function toggleSign() {
+        if (displayValue !== '0' && displayValue !== 'Error') {
+            displayValue = String(parseFloat(displayValue) * -1);
+            if (currentOperator) {
+                formulaText = `${firstOperand} ${currentOperator} ${displayValue}`;
+            } else {
+                formulaText = displayValue;
+            }
+            updateCalcDisplay();
+        }
+    }
+
+    function percentage() {
+        if (displayValue !== 'Error') {
+            displayValue = String(parseFloat(displayValue) / 100);
+            if (currentOperator) {
+                formulaText = `${firstOperand} ${currentOperator} ${displayValue}`;
+            } else {
+                formulaText = displayValue;
+            }
+            updateCalcDisplay();
+        }
+    }
+
+    function memoryClear() {
+        memoryValue = 0;
+        updateMemoryIndicator();
+    }
+
+    function memoryRecall() {
+        displayValue = String(memoryValue);
+        waitingForSecondOperand = true;
+        if (currentOperator) {
+            formulaText = `${firstOperand} ${currentOperator} ${displayValue}`;
+        } else {
+            formulaText = displayValue;
+        }
+        updateCalcDisplay();
+    }
+
+    function memoryAdd() {
+        if (displayValue !== 'Error') {
+            memoryValue += parseFloat(displayValue);
+            waitingForSecondOperand = true;
+            updateMemoryIndicator();
+        }
+    }
+
+    function memorySubtract() {
+        if (displayValue !== 'Error') {
+            memoryValue -= parseFloat(displayValue);
+            waitingForSecondOperand = true;
+            updateMemoryIndicator();
+        }
+    }
+</script>
+
+</body>
+</html>
